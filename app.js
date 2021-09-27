@@ -2,7 +2,8 @@
 const express = require("express")
 const ejs = require("ejs")
 const _ = require('lodash');
-
+const mongoose = require("mongoose")
+require("dotenv").config()
 
 const app = express()
 app.use(express.urlencoded({ extended: true }))
@@ -15,12 +16,30 @@ const aboutContent = "Hac habitasse platea dictumst vestibulum rhoncus est pelle
 const contactContent = "Scelerisque eleifend donec pretium vulputate sapien. Rhoncus urna neque viverra justo nec ultrices. Arcu dui vivamus arcu felis bibendum. Consectetur adipiscing elit duis tristique. Risus viverra adipiscing at in tellus integer feugiat. Sapien nec sagittis aliquam malesuada bibendum arcu vitae. Consequat interdum varius sit amet mattis. Iaculis nunc sed augue lacus. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Pulvinar elementum integer enim neque. Ultrices gravida dictum fusce ut placerat orci nulla. Mauris in aliquam sem fringilla ut morbi tincidunt. Tortor posuere ac ut consequat semper viverra nam libero.";
 const posts = [];
 
+mongoose.connect('mongodb://localhost:27017/BlogPosts');
+
+const Post = mongoose.model('Post', {
+  postTitle: String,
+  postBody: String
+});
+
+
+
 
 app.get("/", (req, res) => {
-  res.render("home", {
-    homeContent: homeStartingContent,
-    posts: posts
+  // Search for all posts
+  Post.find({}, (err, posts) => {
+    if (err) {
+      console.log(err)
+    } else {
+      res.render("home", {
+        homeContent: homeStartingContent,
+        posts: posts
+      })
+    }
   })
+
+
 })
 
 app.get("/about", (req, res) => {
@@ -39,16 +58,14 @@ app.get("/compose", (req, res) => {
 })
 
 app.post("/compose", (req, res) => {
-  // console.log(req.body.postTitle)
-  // console.log(req.body.postBody)
-
   // Post Object that stores details of latest composed post
-  const post = {
+  const post = new Post({
     postTitle: req.body.postTitle,
     postBody: req.body.postBody
-  }
+  });
+
   // add that post object to the global posts array
-  posts.push(post);
+  post.save();
   // send us back to the main page
   res.redirect("/")
 
@@ -56,16 +73,32 @@ app.post("/compose", (req, res) => {
 
 app.get("/posts/:postID", (req, res) => {
   // console.log(req.params)
-
-  posts.forEach(post => {
-
-    if (_.lowerCase(post.postTitle) == _.lowerCase(req.params.postID)) {
-      res.render("post", {
-        postTitle: post.postTitle,
-        postBody: post.postBody
-      })
+  const postID = req.params.postID
+  Post.findById(postID, (err, post) => {
+    if (err) {
+      console.log(err)
+    } else {
+      if (!post) {
+        res.redirect("/")
+      } else {
+        console.log(post)
+        res.render("post", {
+          postTitle: post.postTitle,
+          postBody: post.postBody
+        })
+      }
     }
-  });
+  })
+
+
+
+
+
+
+})
+
+app.get("/find", (req, res) => {
+
 })
 
 app.listen(3000, () => {
