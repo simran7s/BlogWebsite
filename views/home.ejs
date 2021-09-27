@@ -5,11 +5,7 @@
     
 <% posts.forEach(post => { %>
     <h2> <%= post.postTitle %> </h2>
-    <p><%= post.postBody.substring(0, 100) + " ..."%> 
-        <form action="/find" method="post">
-            <a href="/posts/<%= post._id %>" onClick="this.form.submit()">Read More</a></p>
-            <input type="hidden" name="postObject" value=<%=post%> >
-        </form>
+    <p><%= post.postBody.substring(0, 100) + " ..."%> <a href="/posts/<%= post._id %>">Read More</a></p>
 <% }) %>
 
 <%- include("./partials/footer") %> 

@@ -16,7 +16,7 @@ const aboutContent = "Hac habitasse platea dictumst vestibulum rhoncus est pelle
 const contactContent = "Scelerisque eleifend donec pretium vulputate sapien. Rhoncus urna neque viverra justo nec ultrices. Arcu dui vivamus arcu felis bibendum. Consectetur adipiscing elit duis tristique. Risus viverra adipiscing at in tellus integer feugiat. Sapien nec sagittis aliquam malesuada bibendum arcu vitae. Consequat interdum varius sit amet mattis. Iaculis nunc sed augue lacus. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Pulvinar elementum integer enim neque. Ultrices gravida dictum fusce ut placerat orci nulla. Mauris in aliquam sem fringilla ut morbi tincidunt. Tortor posuere ac ut consequat semper viverra nam libero.";
 const posts = [];
 
-mongoose.connect('mongodb://localhost:27017/BlogPosts');
+mongoose.connect(process.env.MONGO_URL);
 
 const Post = mongoose.model('Post', {
   postTitle: String,
@@ -81,7 +81,7 @@ app.get("/posts/:postID", (req, res) => {
       if (!post) {
         res.redirect("/")
       } else {
-        console.log(post)
+        // console.log(post)
         res.render("post", {
           postTitle: post.postTitle,
           postBody: post.postBody
@@ -97,9 +97,11 @@ app.get("/posts/:postID", (req, res) => {
 
 })
 
-app.get("/find", (req, res) => {
-
-})
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 8000;
+}
+app.listen(port);
 
 app.listen(3000, () => {
   console.log("App is now running on port 3000")
